@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de Carreras de Caballos - CMK 🇦🇷</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gta-bg-dark: #1a1a1a;
+      --gta-text-light: #f0f0f0;
+      --gta-accent-orange: #f28a07;
+      --gta-accent-blue: #007bff;
+      --gta-success-green: #28a745;
+      --gta-danger-red: #dc3545;
+      --gta-table-header: #333333;
+      --gta-border-gray: #444444;
+      --gta-input-bg: #2b2b2b;
+    }
+    body { font-family: 'Chakra Petch', sans-serif; background-color: var(--gta-bg-dark); color: var(--gta-text-light); margin:0; padding:20px; display:flex; flex-direction:column; align-items:center; min-height:100vh; box-sizing:border-box;}
+    .container { width:100%; max-width:850px; background:#222; padding:30px; border-radius:8px; box-shadow:0 0 20px rgba(0,0,0,0.5); border:1px solid var(--gta-border-gray); margin-bottom:20px;}
+    h1,h2 { font-family:'Oswald', sans-serif; color:var(--gta-accent-orange); border-bottom:2px solid var(--gta-accent-blue); padding-bottom:10px; margin-top:0; text-transform:uppercase; letter-spacing:1.5px;}
+    h2{ margin-top:30px; }
+    p{ line-height:1.6; font-size:0.95em; }
+    table{ border-collapse:collapse; width:100%; margin-top:25px; border:1px solid var(--gta-border-gray); }
+    th,td{ border:1px solid var(--gta-border-gray); padding:12px; text-align:center; vertical-align:middle; font-size:0.9em;}
+    th{ background-color:var(--gta-table-header); color:var(--gta-accent-orange); font-weight:700; text-transform:uppercase;}
+    tr:nth-child(even){ background-color:#2a2a2a; }
+    .input-group{ display:flex; align-items:center; justify-content:center; }
+    input[type="text"]{ width:60%; padding:8px 10px; border:1px solid var(--gta-border-gray); border-radius:4px 0 0 4px; text-align:center; font-size:1em; background-color:var(--gta-input-bg); color:var(--gta-text-light); }
+    .static-text{ padding:8px 10px; background-color:var(--gta-input-bg); border:1px solid var(--gta-border-gray); border-left:none; border-radius:0 4px 4px 0; color:var(--gta-text-light); font-size:1em; pointer-events:none;}
+    .button-group{ display:flex; gap:15px; margin-top:30px; }
+    button{ flex:1; padding:15px; font-size:1.1em; font-family:'Oswald', sans-serif; font-weight:bold; color:var(--gta-text-light); background-color:var(--gta-accent-blue); border:none; border-radius:8px; cursor:pointer; }
+    button:hover{ background-color:#0056b3; transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,123,255,0.3); }
+    .positivo{ color:var(--gta-success-green); font-weight:bold; }
+    .negativo{ color:var(--gta-danger-red); font-weight:bold; }
+    .footer{ margin-top:20px; color:#777; font-size:0.8em; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculadora de Carreras de Caballos - CMK</h1>
+    <p>Ingresa las cuotas (formato X/1). El sistema calculará una estrategia de <b>ganancia variable</b> y te mostrará la probabilidad de terminar con profit.</p>
+
+    <table id="tabla-inputs">
+      <thead><tr><th>Caballo</th><th>Cuota</th></tr></thead>
+      <tbody>
+        <tr><td>Caballo 1</td><td><div class="input-group"><input id="c1" type="text" value="2"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 2</td><td><div class="input-group"><input id="c2" type="text" value="4"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 3</td><td><div class="input-group"><input id="c3" type="text" value="8"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 4</td><td><div class="input-group"><input id="c4" type="text" value="14"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 5</td><td><div class="input-group"><input id="c5" type="text" value="22"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 6</td><td><div class="input-group"><input id="c6" type="text" value="24"><span class="static-text">/1</span></div></td></tr>
+      </tbody>
+    </table>
+
+    <div class="button-group">
+      <button onclick="calcularGananciaVariable()">Calcular Ganancia Variable</button>
+    </div>
+
+    <div id="resultados"></div>
+  </div>
+
+  <footer class="footer">Desarrollado por GreppiVg para la Khantown</footer>
+
+<script>
+function parseCuota(txt) {
+  if(typeof txt !== 'string' || !txt.trim()) return NaN;
+  const val1 = parseFloat(txt);
+  if (isNaN(val1) || val1 <= 0) return NaN;
+  return val1;
+}
+
+function getCuotasAndProbabilidades() {
+  let cuotasData = [];
+  for (let i = 1; i <= 6; i++) {
+    const cuotaNum = parseCuota(document.getElementById("c" + i).value);
+    if (isNaN(cuotaNum) || cuotaNum <= 0) {
+        alert(`La cuota para el Caballo ${i} es inválida. Por favor, ingrese un valor numérico positivo.`);
+        return null;
+    }
+    const probabilidad = 1 / (cuotaNum + 1);
+    cuotasData.push({ caballo: i, cuota: cuotaNum, probabilidad: probabilidad });
+  }
+  return cuotasData;
+}
+
+// Nueva función: devuelve un mensaje atractivo según el porcentaje
+function interpretarProbabilidad(pct) {
+  if (pct === 100) return '🎯 ÉXITO TOTAL: Las probabilidades están completamente a tu favor. Una apuesta casi segura.';
+  if (pct > 80)  return '🔥 Muy alta: Excelente oportunidad, el riesgo es mínimo. Ideal para apostar con confianza.';
+  if (pct > 60)  return '✅ Alta: Buenas probabilidades, un momento favorable para jugar, aunque siempre existe cierto riesgo.';
+  if (pct > 40)  return '⚖️ Media: Equilibrado. Podría valer la pena, pero evalúa bien tu estrategia antes de apostar.';
+  if (pct > 20)  return '⚠️ Baja: Riesgo significativo, apuesta solo si te sientes muy seguro o quieres arriesgar poco.';
+  return '🚨 Muy baja: Las chances de ganar son mínimas. No se recomienda apostar en estas condiciones.';
+}
+
+function calcularGananciaVariable() {
+  const maxApuestaIndividual = 10000;
+  const apuestaFavoritoFija = 10000;
+  let cuotas = getCuotasAndProbabilidades();
+  if (!cuotas) return;
+
+  cuotas.sort((a,b)=> b.probabilidad - a.probabilidad);
+  const caballoFavorito = cuotas[0];
+
+  let apuestasFinales = [];
+  apuestasFinales.push({ ...caballoFavorito, apuesta: apuestaFavoritoFija });
+
+  const cobroTotalFavoritoSiGana = apuestaFavoritoFija * (caballoFavorito.cuota + 1);
+  let apuestasNoFavCalculadas = [];
+  const baseIncrementoGananciaPorCuota = cobroTotalFavoritoSiGana * 0.05;
+
+  for (let i = 1; i < cuotas.length; i++) {
+    const c = cuotas[i];
+    let diferenciaCuotaRelativa = Math.log(c.cuota / caballoFavorito.cuota);
+    if (diferenciaCuotaRelativa < 0) diferenciaCuotaRelativa = 0;
+    let gananciaAdicional_i = baseIncrementoGananciaPorCuota * diferenciaCuotaRelativa;
+    let apuesta_i = (cobroTotalFavoritoSiGana + gananciaAdicional_i) / (c.cuota + 1);
+    if (apuesta_i > maxApuestaIndividual) apuesta_i = maxApuestaIndividual;
+    apuestasNoFavCalculadas.push({ ...c, apuesta: apuesta_i });
+  }
+
+  let totalInversion = apuestasFinales[0].apuesta + apuestasNoFavCalculadas.reduce((s,x)=> s + x.apuesta, 0);
+
+  let adjustedApuestasNoFav = [];
+  apuestasNoFavCalculadas.forEach(c => {
+    let apuestaAjustada = c.apuesta;
+    if ((apuestaAjustada * (c.cuota + 1)) < totalInversion) {
+        apuestaAjustada = totalInversion / (c.cuota + 1);
+        if (apuestaAjustada > maxApuestaIndividual) apuestaAjustada = maxApuestaIndividual;
+    }
+    adjustedApuestasNoFav.push({ ...c, apuesta: apuestaAjustada });
+  });
+
+  apuestasFinales = [apuestasFinales[0], ...adjustedApuestasNoFav];
+  totalInversion = apuestasFinales.reduce((sum, current) => sum + current.apuesta, 0);
+
+  let html = `<h2>📈 Resultados de la Apuesta con Ganancia Variable</h2>`;
+  html += `<p><b>Monto total a invertir:</b> $${totalInversion.toFixed(2)}</p>`;
+  html += `<table>
+      <thead>
+      <tr>
+          <th>Caballo</th>
+          <th>Apuesta</th>
+          <th>Ganancia Neta si gana</th>
+          <th>Profit</th>
+      </tr>
+      </thead>
+      <tbody>`;
+
+  let probProfitRaw = 0;
+  let sumImplied = 0;
+
+  apuestasFinales.forEach(r => {
+      const gananciaNetaSiGana = r.apuesta * r.cuota;
+      const profit = gananciaNetaSiGana - totalInversion;
+      const claseGanancia = gananciaNetaSiGana > totalInversion ? 'positivo' : 'negativo';
+      const claseProfit = profit >= 0 ? 'positivo' : 'negativo';
+
+      if (profit >= 0) probProfitRaw += r.probabilidad;
+      sumImplied += r.probabilidad;
+
+      html += `<tr>
+          <td>Caballo ${r.caballo} (${r.cuota.toFixed(2)}/1)</td>
+          <td>$${r.apuesta.toFixed(2)}</td>
+          <td class="${claseGanancia}">$${gananciaNetaSiGana.toFixed(2)}</td>
+          <td class="${claseProfit}">$${profit.toFixed(2)}</td>
+      </tr>`;
+  });
+
+  html += `</tbody></table>`;
+
+  let probProfitNormalized = 0;
+  if (sumImplied > 0) {
+    probProfitNormalized = probProfitRaw / sumImplied;
+  }
+
+  const rawPct = (probProfitRaw * 100);
+  const normPct = (probProfitNormalized * 100);
+  html += `<p><b>Probabilidad bruta de terminar en profit:</b> <span class="${rawPct >= 50 ? 'positivo' : 'negativo'}">${rawPct.toFixed(2)}%</span></p>`;
+  html += `<p><b>Probabilidad normalizada (condicionada):</b> <span class="${normPct >= 50 ? 'positivo' : 'negativo'}">${normPct.toFixed(2)}%</span></p>`;
+
+  // Interpretación mejorada y atractiva
+  const interpretacion = interpretarProbabilidad(normPct);
+  html += `<p><b>Interpretación:</b> ${interpretacion}</p>`;
+
+  document.getElementById("resultados").innerHTML = html;
+}
+</script>
+</body>
+</html>
