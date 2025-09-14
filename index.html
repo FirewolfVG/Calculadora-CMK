@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Carreras de Caballos - CMK 🇦🇷</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -17,9 +18,30 @@
       --gta-border-gray: #444444;
       --gta-input-bg: #2b2b2b;
     }
-    body { font-family: 'Chakra Petch', sans-serif; background-color: var(--gta-bg-dark); color: var(--gta-text-light); margin:0; padding:20px; display:flex; flex-direction:column; align-items:center; min-height:100vh; box-sizing:border-box;}
-    .container { width:100%; max-width:850px; background:#222; padding:30px; border-radius:8px; box-shadow:0 0 20px rgba(0,0,0,0.5); border:1px solid var(--gta-border-gray); margin-bottom:20px;}
-    h1,h2 { font-family:'Oswald', sans-serif; color:var(--gta-accent-orange); border-bottom:2px solid var(--gta-accent-blue); padding-bottom:10px; margin-top:0; text-transform:uppercase; letter-spacing:1.5px;}
+    body {
+      font-family: 'Chakra Petch', sans-serif;
+      background-color: var(--gta-bg-dark);
+      color: var(--gta-text-light);
+      margin:0; padding:20px;
+      display:flex; flex-direction:column;
+      align-items:center; min-height:100vh;
+      box-sizing:border-box;
+    }
+    .container {
+      width:100%; max-width:850px;
+      background:#222; padding:30px;
+      border-radius:8px;
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+      border:1px solid var(--gta-border-gray);
+      margin-bottom:20px;
+    }
+    h1,h2 {
+      font-family:'Oswald', sans-serif;
+      color:var(--gta-accent-orange);
+      border-bottom:2px solid var(--gta-accent-blue);
+      padding-bottom:10px; margin-top:0;
+      text-transform:uppercase; letter-spacing:1.5px;
+    }
     h2{ margin-top:30px; }
     p{ line-height:1.6; font-size:0.95em; }
     table{ border-collapse:collapse; width:100%; margin-top:25px; border:1px solid var(--gta-border-gray); }
@@ -27,30 +49,69 @@
     th{ background-color:var(--gta-table-header); color:var(--gta-accent-orange); font-weight:700; text-transform:uppercase;}
     tr:nth-child(even){ background-color:#2a2a2a; }
     .input-group{ display:flex; align-items:center; justify-content:center; }
-    input[type="text"]{ width:60%; padding:8px 10px; border:1px solid var(--gta-border-gray); border-radius:4px 0 0 4px; text-align:center; font-size:1em; background-color:var(--gta-input-bg); color:var(--gta-text-light); }
-    .static-text{ padding:8px 10px; background-color:var(--gta-input-bg); border:1px solid var(--gta-border-gray); border-left:none; border-radius:0 4px 4px 0; color:var(--gta-text-light); font-size:1em; pointer-events:none;}
+    input[type="text"]{
+      width:60%; padding:8px 10px;
+      border:1px solid var(--gta-border-gray);
+      border-radius:4px 0 0 4px;
+      text-align:center; font-size:1em;
+      background-color:var(--gta-input-bg);
+      color:var(--gta-text-light);
+    }
+    .static-text{
+      padding:8px 10px; background-color:var(--gta-input-bg);
+      border:1px solid var(--gta-border-gray);
+      border-left:none; border-radius:0 4px 4px 0;
+      color:var(--gta-text-light); font-size:1em;
+      pointer-events:none;
+    }
     .button-group{ display:flex; gap:15px; margin-top:30px; }
-    button{ flex:1; padding:15px; font-size:1.1em; font-family:'Oswald', sans-serif; font-weight:bold; color:var(--gta-text-light); background-color:var(--gta-accent-blue); border:none; border-radius:8px; cursor:pointer; }
-    button:hover{ background-color:#0056b3; transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,123,255,0.3); }
+    button{
+      flex:1; padding:15px; font-size:1.1em;
+      font-family:'Oswald', sans-serif; font-weight:bold;
+      color:var(--gta-text-light);
+      background-color:var(--gta-accent-blue);
+      border:none; border-radius:8px; cursor:pointer;
+    }
+    button:hover{
+      background-color:#0056b3;
+      transform:translateY(-2px);
+      box-shadow:0 4px 10px rgba(0,123,255,0.3);
+    }
     .positivo{ color:var(--gta-success-green); font-weight:bold; }
     .negativo{ color:var(--gta-danger-red); font-weight:bold; }
-    .footer{ margin-top:26px; color:#777; font-size:0.8em; text-align:center; }
+    /* Resaltado extra */
+    .highlight-total {
+      font-size:1.3em;
+      color:var(--gta-accent-orange);
+      font-weight:bold;
+    }
+    .highlight-interpretacion {
+      font-size:1.2em;
+      color:var(--gta-accent-blue);
+      font-weight:bold;
+    }
+    .footer{
+      margin-top:26px;
+      color:#777;
+      font-size:1em; /* más grande */
+      text-align:center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Calculadora de Carreras de Caballos - CMK</h1>
-    <p>Ingresa las cuotas (formato X/1). El sistema calculará una estrategia de <b>ganancia variable</b> y te mostrará la probabilidad de terminar con profit.</p>
+    <p>🎉 No queremos la pala! Ingresa las cuotas en formato <b>X/1</b></p>
 
     <table id="tabla-inputs">
       <thead><tr><th>Caballo</th><th>Cuota</th></tr></thead>
       <tbody>
-        <tr><td>Caballo 1</td><td><div class="input-group"><input id="c1" type="text" value=""><span class="static-text">/1</span></div></td></tr>
-        <tr><td>Caballo 2</td><td><div class="input-group"><input id="c2" type="text" value=""><span class="static-text">/1</span></div></td></tr>
-        <tr><td>Caballo 3</td><td><div class="input-group"><input id="c3" type="text" value=""><span class="static-text">/1</span></div></td></tr>
-        <tr><td>Caballo 4</td><td><div class="input-group"><input id="c4" type="text" value=""><span class="static-text">/1</span></div></td></tr>
-        <tr><td>Caballo 5</td><td><div class="input-group"><input id="c5" type="text" value=""><span class="static-text">/1</span></div></td></tr>
-        <tr><td>Caballo 6</td><td><div class="input-group"><input id="c6" type="text" value=""><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 1</td><td><div class="input-group"><input id="c1" type="text"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 2</td><td><div class="input-group"><input id="c2" type="text"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 3</td><td><div class="input-group"><input id="c3" type="text"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 4</td><td><div class="input-group"><input id="c4" type="text"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 5</td><td><div class="input-group"><input id="c5" type="text"><span class="static-text">/1</span></div></td></tr>
+        <tr><td>Caballo 6</td><td><div class="input-group"><input id="c6" type="text"><span class="static-text">/1</span></div></td></tr>
       </tbody>
     </table>
 
@@ -85,7 +146,6 @@ function getCuotasAndProbabilidades() {
   return cuotasData;
 }
 
-// Nueva función: devuelve un mensaje atractivo según el porcentaje
 function interpretarProbabilidad(pct) {
   if (pct === 100) return '🎯 ÉXITO TOTAL: Las probabilidades están completamente a tu favor. Tremeeendo!.';
   if (pct > 80)  return '🔥 Muy alta: Excelente oportunidad, el riesgo es mínimo, como con Mila al volante.';
@@ -137,7 +197,7 @@ function calcularGananciaVariable() {
   totalInversion = apuestasFinales.reduce((sum, current) => sum + current.apuesta, 0);
 
   let html = `<h2>📈 Resultados de la Apuesta con Ganancia Variable</h2>`;
-  html += `<p><b>Monto total a invertir:</b> $${totalInversion.toFixed(2)}</p>`;
+  html += `<p class="highlight-total">Monto total a invertir: $${totalInversion.toFixed(2)}</p>`;
   html += `<table>
       <thead>
       <tr>
@@ -176,14 +236,11 @@ function calcularGananciaVariable() {
     probProfitNormalized = probProfitRaw / sumImplied;
   }
 
-  const rawPct = (probProfitRaw * 100);
   const normPct = (probProfitNormalized * 100);
-
   html += `<p><b>Probabilidad normalizada de ganar:</b> <span class="${normPct >= 50 ? 'positivo' : 'negativo'}">${normPct.toFixed(2)}%</span></p>`;
 
-  // Interpretación mejorada y atractiva
   const interpretacion = interpretarProbabilidad(normPct);
-  html += `<p><b>Interpretación:</b> ${interpretacion}</p>`;
+  html += `<p class="highlight-interpretacion">Interpretación: ${interpretacion}</p>`;
 
   document.getElementById("resultados").innerHTML = html;
 }
