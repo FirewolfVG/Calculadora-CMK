@@ -11,12 +11,14 @@
       --gta-bg-dark: #1a1a1a;
       --gta-text-light: #f0f0f0;
       --gta-accent-orange: #f28a07;
-      --gta-accent-blue: #c9938f;
+      --gta-accent-red2: #c9938f;
       --gta-success-green: #28a745;
       --gta-danger-red: #dc3545;
       --gta-table-header: #333333;
       --gta-border-gray: #444444;
       --gta-input-bg: #2b2b2b;
+      --gta-accent-blue: #007bff; /* Definido si no existe, o se adapta a un azul si ya existe */
+      --gta-button-hover-blue: #0056b3; /* Para el hover del botón */
     }
     body {
       font-family: 'Chakra Petch', sans-serif;
@@ -38,7 +40,7 @@
     h1,h2 {
       font-family:'Oswald', sans-serif;
       color:var(--gta-accent-orange);
-      border-bottom:2px solid var(--gta-accent-blue);
+      border-bottom:2px solid var(--gta-border-gray); /* Ajuste el color del borde para que sea más consistente */
       padding-bottom:10px; margin-top:0;
       text-transform:uppercase; letter-spacing:1.5px;
     }
@@ -64,19 +66,28 @@
       color:var(--gta-text-light); font-size:1em;
       pointer-events:none;
     }
-    .button-group{ display:flex; gap:15px; margin-top:30px; }
-    button{
-      flex:1; padding:15px; font-size:1.1em;
+    .button-group{ display:flex; gap:15px; margin-top:30px; flex-direction: column; align-items: center;}
+    
+    /* Estilo del botón "Calcular ganancia" */
+    #calculateButton {
+      width: 100%; /* El botón ocupa todo el ancho disponible */
+      max-width: 400px; /* Ancho máximo para el botón */
+      padding:15px; font-size:1.1em;
       font-family:'Oswald', sans-serif; font-weight:bold;
       color:var(--gta-text-light);
-      background-color:var(--gta-accent-blue);
+      background: linear-gradient(145deg, #007bff, #0056b3); /* Degradado azul */
       border:none; border-radius:8px; cursor:pointer;
+      box-shadow: 0 4px 10px rgba(0,123,255,0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    button:hover{
-      background-color:#0056b3;
-      transform:translateY(-2px);
-      box-shadow:0 4px 10px rgba(0,123,255,0.3);
+    #calculateButton:hover{
+      background: linear-gradient(145deg, #0056b3, #003a75); /* Degradado más oscuro en hover */
+      transform:translateY(-3px);
+      box-shadow:0 6px 15px rgba(0,123,255,0.5);
     }
+
     .positivo{ color:var(--gta-success-green); font-weight:bold; }
     .negativo{ color:var(--gta-danger-red); font-weight:bold; }
     /* Resaltado extra */
@@ -87,7 +98,7 @@
     }
     .highlight-interpretacion {
       font-size:1.2em;
-      color:var(--gta-accent-blue);
+      color:var(--gta-accent-red2);
       font-weight:bold;
     }
     .footer{
@@ -95,6 +106,78 @@
       color:#777;
       font-size:1em; /* más grande */
       text-align:center;
+    }
+
+    /* Estilos para el Switch */
+    .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: center; /* Centra el switch */
+      gap: 10px;
+      margin-bottom: 10px; /* Reducido para acercar la nota */
+      font-size: 0.85em; /* Texto un poco más pequeño */
+      color: #bbb;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 26px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--gta-accent-orange);
+    }
+    input:focus + .slider {
+      box-shadow: 0 0 1px var(--gta-accent-orange);
+    }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    .switch-label {
+      min-width: 80px; /* Asegura un ancho mínimo para los labels */
+      text-align: right;
+    }
+    .switch-label.active {
+      color: var(--gta-text-light);
+      font-weight: bold;
+    }
+
+    /* Estilo para la nota de Marbella */
+    #marbella-note {
+      font-size: 0.8em;
+      color: var(--gta-accent-red2);
+      text-align: center;
+      margin-top: 5px; /* Espacio entre el switch y la nota */
+      margin-bottom: 20px; /* Espacio entre la nota y el botón */
+      max-width: 400px;
+      display: none; /* Oculta por defecto */
     }
   </style>
 </head>
@@ -116,7 +199,19 @@
     </table>
 
     <div class="button-group">
-      <button onclick="calcularGananciaVariable()">Calcular Ganancia Variable</button>
+      <div class="switch-container">
+        <span id="labelOptima" class="switch-label">Apuesta Óptima</span>
+        <label class="switch">
+          <input type="checkbox" id="marbellaSwitch" checked onchange="updateSwitchLabels(); calcularGananciaVariable();">
+          <span class="slider round"></span>
+        </label>
+        <span id="labelMarbella" class="switch-label active">Apuesta Marbella</span>
+      </div>
+      <!-- Nota de advertencia para el modo Marbella -->
+      <div id="marbella-note">
+        ⚠️ Con el modo "Apuesta Marbella" activado, las apuestas se redondean a los montos disponibles, lo que podría reducir significativamente las probabilidades de ganancia óptima.
+      </div>
+      <button id="calculateButton" onclick="calcularGananciaVariable()">Calcular Ganancia</button>
     </div>
 
     <div id="resultados"></div>
@@ -125,6 +220,8 @@
   <footer class="footer">Desarrollado por GreppiVg para la Khantown</footer>
 
 <script>
+const marbellaBets = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
+
 function parseCuota(txt) {
   if(typeof txt !== 'string' || !txt.trim()) return NaN;
   const val1 = parseFloat(txt);
@@ -148,16 +245,35 @@ function getCuotasAndProbabilidades() {
 
 function interpretarProbabilidad(pct) {
   if (pct === 100) return '🎯 ÉXITO TOTAL: Las probabilidades están completamente a tu favor. Tremeeendo!.';
-  if (pct > 80)  return '🔥 Muy alta: Excelente oportunidad, el riesgo es mínimo, como con Mila al volante.';
-  if (pct > 60)  return '✅ Alta: Buenas probabilidades, un momento favorable. Show Time!!!';
-  if (pct > 40)  return '⚖️ Media: Equilibrado. Podría valer la pena apostar. Ollie mi barquito';
-  if (pct > 20)  return '⚠️ Baja: Riesgo significativo, mas si hay un colorado en la sala.';
+  if (pct > 90)  return '🔥 Muy alta: Excelente oportunidad, el riesgo es mínimo, como con Mila al volante.';
+  if (pct > 70)  return '✅ Alta: Buenas probabilidades, un momento favorable. Si no lo haces vuelve Phil Stones a la CMK.';
+  if (pct > 50)  return '⚖️ Media: Equilibrado. Podría valer la pena apostar. Ollie mi barquito';
+  if (pct > 30)  return '⚠️ Baja: Riesgo significativo, mas si hay un colorado en la sala.';
   return '🚨 Muy baja: Las chances de ganar son mínimas. no seas vecino de Curry.';
+}
+
+function roundToMarbellaBet(betAmount) {
+  let closest = marbellaBets[0];
+  let minDiff = Math.abs(betAmount - closest);
+
+  for (let i = 1; i < marbellaBets.length; i++) {
+    const currentDiff = Math.abs(betAmount - marbellaBets[i]);
+    if (currentDiff < minDiff) {
+      minDiff = currentDiff;
+      closest = marbellaBets[i];
+    } else if (currentDiff === minDiff && marbellaBets[i] < betAmount) {
+      // Si hay dos valores equidistantes, elige el menor para no exceder tanto
+      closest = marbellaBets[i];
+    }
+  }
+  return closest;
 }
 
 function calcularGananciaVariable() {
   const maxApuestaIndividual = 10000;
   const apuestaFavoritoFija = 10000;
+  const isMarbellaMode = document.getElementById("marbellaSwitch").checked;
+
   let cuotas = getCuotasAndProbabilidades();
   if (!cuotas) return;
 
@@ -165,9 +281,14 @@ function calcularGananciaVariable() {
   const caballoFavorito = cuotas[0];
 
   let apuestasFinales = [];
-  apuestasFinales.push({ ...caballoFavorito, apuesta: apuestaFavoritoFija });
+  let apuestaFav = apuestaFavoritoFija;
+  if (isMarbellaMode) {
+      apuestaFav = roundToMarbellaBet(apuestaFavoritoFija);
+  }
+  apuestasFinales.push({ ...caballoFavorito, apuesta: apuestaFav });
 
-  const cobroTotalFavoritoSiGana = apuestaFavoritoFija * (caballoFavorito.cuota + 1);
+  // Este es el cobro total si el favorito gana, incluyendo la apuesta inicial.
+  const cobroTotalFavoritoSiGana = apuestaFav * (caballoFavorito.cuota + 1);
   let apuestasNoFavCalculadas = [];
   const baseIncrementoGananciaPorCuota = cobroTotalFavoritoSiGana * 0.05;
 
@@ -177,7 +298,12 @@ function calcularGananciaVariable() {
     if (diferenciaCuotaRelativa < 0) diferenciaCuotaRelativa = 0;
     let gananciaAdicional_i = baseIncrementoGananciaPorCuota * diferenciaCuotaRelativa;
     let apuesta_i = (cobroTotalFavoritoSiGana + gananciaAdicional_i) / (c.cuota + 1);
+
+    if (isMarbellaMode) {
+        apuesta_i = roundToMarbellaBet(apuesta_i);
+    }
     if (apuesta_i > maxApuestaIndividual) apuesta_i = maxApuestaIndividual;
+    
     apuestasNoFavCalculadas.push({ ...c, apuesta: apuesta_i });
   }
 
@@ -186,8 +312,12 @@ function calcularGananciaVariable() {
   let adjustedApuestasNoFav = [];
   apuestasNoFavCalculadas.forEach(c => {
     let apuestaAjustada = c.apuesta;
+    // Si la ganancia potencial (apuesta + ganancia) es menor que la inversión total, ajustamos la apuesta para cubrir al menos la inversión
     if ((apuestaAjustada * (c.cuota + 1)) < totalInversion) {
         apuestaAjustada = totalInversion / (c.cuota + 1);
+        if (isMarbellaMode) {
+            apuestaAjustada = roundToMarbellaBet(apuestaAjustada);
+        }
         if (apuestaAjustada > maxApuestaIndividual) apuestaAjustada = maxApuestaIndividual;
     }
     adjustedApuestasNoFav.push({ ...c, apuesta: apuestaAjustada });
@@ -213,8 +343,9 @@ function calcularGananciaVariable() {
   let sumImplied = 0;
 
   apuestasFinales.forEach(r => {
-      const gananciaNetaSiGana = r.apuesta * r.cuota;
-      const profit = gananciaNetaSiGana - totalInversion;
+      // Revertido a la lógica original: Ganancia Neta es solo el monto ganado, sin incluir la apuesta inicial
+      const gananciaNetaSiGana = r.apuesta * r.cuota; 
+      const profit = gananciaNetaSiGana - totalInversion; // El profit se calcula sobre la ganancia neta
       const claseGanancia = gananciaNetaSiGana > totalInversion ? 'positivo' : 'negativo';
       const claseProfit = profit >= 0 ? 'positivo' : 'negativo';
 
@@ -244,8 +375,32 @@ function calcularGananciaVariable() {
 
   document.getElementById("resultados").innerHTML = html;
 }
+
+// Función para actualizar los estilos de los labels del switch y la visibilidad de la nota
+function updateSwitchLabels() {
+    const isMarbellaMode = document.getElementById("marbellaSwitch").checked;
+    const labelOptima = document.getElementById("labelOptima");
+    const labelMarbella = document.getElementById("labelMarbella");
+    const marbellaNote = document.getElementById("marbella-note");
+
+    if (isMarbellaMode) {
+        labelOptima.classList.remove("active");
+        labelMarbella.classList.add("active");
+        marbellaNote.style.display = "block"; // Muestra la nota
+    } else {
+        labelOptima.classList.add("active");
+        labelMarbella.classList.remove("active");
+        marbellaNote.style.display = "none"; // Oculta la nota
+    }
+}
+
+// Inicializar los labels y calcular al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    updateSwitchLabels();
+    // No llamamos a calcularGananciaVariable() aquí si no queremos que se calcule automáticamente al cargar
+    // Si queremos que se calcule automáticamente al cargar, descomentar la siguiente línea:
+    // calcularGananciaVariable();
+});
 </script>
 </body>
 </html>
-
-
